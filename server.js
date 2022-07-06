@@ -14,6 +14,7 @@ connection.connect(err => {
 });
 
 
+// Questions for adding and updating 
 
 const renderQuestions = () => {
     inquirer.prompt  ([
@@ -39,7 +40,8 @@ const renderQuestions = () => {
             console.log(Goodbye);
     }
 
-        if(response. selection === 'View All Departments') {
+    // View all departments 
+        if(response.selection === 'View All Departments') {
 
             const sql = `SELECT department.id AS 'ID', 
                         department.department_name AS 'Department' FROM department`
@@ -54,6 +56,7 @@ const renderQuestions = () => {
         };
 
 
+        // View all roles 
         if (response.selection === 'View All Roles') {
 
             const sql = `SELECT roles.id AS 'ID', 
@@ -74,6 +77,7 @@ const renderQuestions = () => {
             })
         }
 
+        // View all employees
         if (response.selection === 'View All Employees') {
 
             const sql = `SELECT employee.id AS 'ID', 
@@ -99,6 +103,7 @@ const renderQuestions = () => {
             })
         }
 
+        // Add Department 
         if(response.selection === 'Add Department') {
             inquirer.prompt ([
                 {
@@ -121,6 +126,7 @@ const renderQuestions = () => {
             })
         };
 
+        // Add a role 
         if (response.selection === 'Add Role') {
             
             const sql = `SELECT * FROM department`;
@@ -167,8 +173,137 @@ const renderQuestions = () => {
             })
         }
 
+        // Add employee
         if(response.selection === 'Add Employee') {
+            
+            const sqlRole = `SELECT * FROM roles`;
 
+            connection.query(sqlRole, (err, data) => {
+                if (err) {
+                    console.log(err);
+                }
+                const roles = data.map(({ id, title, salary, department_id }) => ({ name: title, salary: salary, department: department_id, value: id}));
+
+                const employeeArr =[];
+
+                inquirer.prompt([
+                    {
+                        type: 'input',
+                        name: 'firstName',
+                        message: 'What is the first name of the employee'
+                    },
+                    {
+                        type: 'input',
+                        name: 'lastName',
+                        message: 'What is the last name of the employee'
+                    },
+                    {
+                        type: 'list',
+                        name: 'role',
+                        message: 'What is the employees role?',
+                        choices: roles
+                    }
+                ])
+                .then(answers => {
+                    employeeArr.push(answers.firstName, answers.lastName, answers.role);
+
+                    const sqlMan = `SLECT * FROM employee`;
+
+                    connection.query(sqlMan, (err, data) => {
+                        if (err) {
+                            console.log(err);
+                        }
+
+                        const managers = data.map(({id, first_name, last_name}) =>({ name: first_name + " " + last_name, value: id}));
+
+                        inquirer.prompt ([
+                            {
+                                type: 'list',
+                                name: 'manager',
+                                message: "Enter the employee's manager",
+                                choices: managers
+                            }
+                        ])
+                        .then(managerAnswers =>{
+                            const manager = managerAnswers.manager;
+                            employeeArr.push(manager);
+
+                            const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ('${answers.firstName}', '${answers.lastName}', '${answers.role}', ${manager})`;
+
+                            connection.query(sql, employeeArr, (err, result) => {
+                                if(err) {
+                                    console.log(err);
+                                }
+                                console.log(`Employee Added`)
+                                renderQuestions();
+                            });
+                        })
+                    })
+                })
+            })
+        }
+
+        // Update an employee
+        if(response.selection === 'Update Employee Role') {
+
+            const sql = `SELECT * FROM employee`;
+
+            connection.query(sql, (err, data) => {
+                if (err) {
+                    console.log(err)
+                }
+
+                 const employees = data.map (({id, first_name, last_name}) => ({ name: first_name + " " + last_name, value: id}));
+
+                 inquirer.prompt ([
+                     {
+                         type: 'list',
+                         name: 'updatedEmployee',
+                         message: 'Pick an employee to update',
+                         choices: employees
+                     }
+                 ])
+                 .then(answer => {
+                     const employee = answer.updatedEmployee;
+                     const arr = [];
+                     arr.push(employee);
+
+                     const sqlRole = `SELECT & FROM role`;
+
+                     connection.query(sqlRole, (err, data) => {
+                         if (err) {
+                             console.log(err)
+                         }
+
+                         const role = data.map(({ id, title}) => ({name: title, value: id }));
+
+                         inquirer.prompt ([
+                             {
+                                type: 'list',
+                                name: 'newRole',
+                                message: 'Pick a new role for the employee',
+                                choices: role
+                             }
+                         ])
+                         .then(roleAnswer => {
+                             const role = roleAnswer.newRole;
+                             arr.push(role);
+
+                             const reverseArr = arr.reverse();
+
+                             const sql = `UPDATE employee SET role_id = ? WHERE id = ?`
+
+                             connection.query(sql, reverseArr, (err, results) => {
+                                 if(err) {
+                                     console.log(err)
+                                 }
+                                 console.log(`Employee Updated`);
+                                 renderQuestions();
+                             })
+                         })
+                     })
+                 })
+            })
         }
 })
 
