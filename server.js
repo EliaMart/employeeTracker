@@ -62,20 +62,17 @@ const renderQuestions = () => {
             })
         } else if (response.questionSelection === 'View All Employees') {
             console.log('View All Employees');
-            // const sql = `SELECT employee.id AS 'ID', 
-            //             employee.first_name AS 'First Name', 
-            //             employee.last_name AS 'Last Name',
-            //             roles.title AS 'Title',
-            //             department.department_name AS 'Department',
-            //             roles.salary AS 'Salary',
-            //             CONCAT (manager.first_name, ' ', manager.last.name) AS 'Manager',
-
-            //             FROM employee
+            const sql = `SELECT employee.id AS 'ID', 
+                        employee.first_name AS 'First Name', 
+                        employee.last_name AS 'Last Name',
+                        roles.title AS 'Title',
+                        department.department_name AS 'Department',
+                        roles.salary AS 'Salary',
+                        CONCAT (manager.first_name, ' ', manager.last_name) AS 'Manager' FROM employee
                         
-            //             LEFT JOIN roles ON (employee.roles_id = roles.id)
-            //             LEFT JOIN department ON (department.id = roles.department_id)
-            //             LEFT JOIN employee manager ON employee.manager_id = manager.id;`
-            const sql = `select * from employee`;
+                        LEFT JOIN roles ON (employee.role_id = roles.id)
+                        LEFT JOIN department ON (department.id = roles.department_id)
+                        LEFT JOIN employee manager ON employee.manager_id = manager.id;`
             connection.query(sql, (err, rows) => {
                 if (err) {
                     console.log('Error:', err);

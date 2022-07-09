@@ -31,10 +31,8 @@ To install this application you will clone the repository to your local machine.
 
 Once in the command line you will be prompted to select from a list of the following: view all departments, view all roles, view all employees, add a department, add a role, add an employee, and update an employee role. You will select what you want to do and be prompt with either a table of information or a set of questions to answer. When finished you will select exit. 
 
-![Note Taker Homepage](./assets/homePageNotes.png)
 
-
-[Walkthrough video]()
+[Walkthrough video](https://drive.google.com/file/d/1b5e5LMgDEhBKfzp0VStxKac-ec70aqmU/view)
 
 
 ## Contribution 
